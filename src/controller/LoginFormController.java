@@ -4,8 +4,10 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Region;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public class LoginFormController {
 
@@ -47,23 +49,36 @@ public class LoginFormController {
 //                    txtPassword.getText());
 
             Process exec = new ProcessBuilder("mysql", "-h", txtHost.getText(), "--port", txtPort.getText(), "-u", txtUsername.getText(),
-                    "-p"+txtPassword.getText(), "-e", "exit").start();
+                    "-p", "-e", "exit").start();
 
 //            Process exec = Runtime.getRuntime().exec(command);
+
+            exec.getOutputStream().write(txtPassword.getText().getBytes());
+            exec.getOutputStream().close();
 
             int i = exec.waitFor();
 
             if (i==0){
                 System.out.println("Done!");
             }else{
-                throw new RuntimeException("Something went wrong!");
+                String error = readStream(exec.getErrorStream());
+                Alert alert = new Alert(Alert.AlertType.ERROR, error, ButtonType.OK);
+                alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+                alert.show();
             }
         } catch (Throwable e) {
-            new Alert(Alert.AlertType.ERROR,"Something went wrong!",ButtonType.OK).show();
             e.printStackTrace();
         }
 
     }
+
+        private String readStream(InputStream errorStream) throws IOException {
+            byte[] buffer = new byte[errorStream.available()];
+            errorStream.read(buffer);
+            errorStream.close();
+            return new String(buffer);
+        }
+
 
     public void btnExitOnAction(ActionEvent actionEvent) {
 
