@@ -1,10 +1,14 @@
 package controller;
 
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,7 +63,16 @@ public class LoginFormController {
             int i = exec.waitFor();
 
             if (i==0){
-                System.out.println("Done!");
+                FXMLLoader fxmlLoader = new FXMLLoader(this.getClass().getResource("/view/CommandForm.fxml"));
+                AnchorPane load = fxmlLoader.load();
+                CommandFormController controller = fxmlLoader.getController();
+                controller.initData(txtHost.getText(),txtPort.getText(),txtUsername.getText(),txtPassword.getText());
+                Stage stage = new Stage();
+                stage.setScene(new Scene(load));
+                stage.sizeToScene();
+                stage.centerOnScreen();
+                stage.setResizable(false);
+                stage.show();
             }else{
                 String error = readStream(exec.getErrorStream());
                 Alert alert = new Alert(Alert.AlertType.ERROR, error, ButtonType.OK);

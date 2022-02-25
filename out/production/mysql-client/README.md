@@ -1,2 +1,0 @@
-#Mysql Client Shell Application
-
